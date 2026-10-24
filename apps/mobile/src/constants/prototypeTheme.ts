@@ -251,15 +251,15 @@ export const TRAVEL_RESULTS: [string, string, string][] = [
 ];
 
 export const SERIF_FONT = Platform.select({
-  ios: 'Georgia',
-  android: 'serif',
-  default: '"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif',
+  ios: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif',
+  android: 'Roboto, sans-serif',
+  default: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif',
 });
 
 export const SANS_FONT = Platform.select({
-  ios: 'System',
-  android: 'sans-serif',
-  default: '"Avenir Next", "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  ios: '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif',
+  android: 'Roboto, sans-serif',
+  default: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif',
 });
 
 export const PROTOTYPE_THEMES = {

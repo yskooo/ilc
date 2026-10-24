@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import {
   TABS,
   PrototypeTab,
   ThemeMode,
   PROTOTYPE_THEMES,
 } from '../constants/prototypeTheme';
-import { PrototypeTabIcon } from './PrototypeArtwork';
+import { RADII, TYPO } from '../constants/uiTokens';
 
 export type TabType = PrototypeTab;
 
@@ -22,88 +23,133 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   theme = 'dark',
 }) => {
   const t = PROTOTYPE_THEMES[theme];
+  const isDark = theme === 'dark';
+
+  const renderTabIcon = (tab: PrototypeTab, color: string, active: boolean) => {
+    switch (tab) {
+      case 'home':
+        return <Feather name="play-circle" size={20} color={color} />;
+      case 'live':
+        return <MaterialCommunityIcons name="broadcast" size={21} color={color} />;
+      case 'rewards':
+        return <Feather name="award" size={20} color={color} />;
+      case 'travel':
+        return <Feather name="navigation" size={19} color={color} />;
+      case 'more':
+        return <Feather name="user" size={20} color={color} />;
+      default:
+        return <Feather name="grid" size={20} color={color} />;
+    }
+  };
+
+  const activeColor = isDark ? '#C9DC3F' : '#0B6A2E';
+  const inactiveColor = isDark ? 'rgba(255, 255, 255, 0.42)' : '#8E8E93';
 
   return (
     <View
       style={[
-        styles.tabs,
+        styles.tabsDock,
         {
-          backgroundColor:
-            Platform.OS === 'web'
-              ? t.tabsBg
-              : theme === 'dark'
-              ? 'rgba(8,36,20,0.96)'
-              : 'rgba(255,255,255,0.96)',
-          borderColor: t.tabsBorder,
+          backgroundColor: isDark ? 'rgba(4, 21, 11, 0.90)' : 'rgba(255, 255, 255, 0.92)',
+          borderTopColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
         },
         Platform.OS === 'web' &&
           ({
-            backdropFilter: 'blur(18px) saturate(1.4)',
-            WebkitBackdropFilter: 'blur(18px) saturate(1.4)',
-            boxShadow:
-              theme === 'light'
-                ? '0 10px 30px rgba(6,60,25,0.15)'
-                : '0 12px 32px rgba(0,0,0,0.4)',
+            backdropFilter: 'blur(24px) saturate(1.8)',
+            WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
+            boxShadow: isDark
+              ? '0 -8px 24px rgba(0, 0, 0, 0.5)'
+              : '0 -4px 20px rgba(0, 0, 0, 0.06)',
           } as any),
       ]}
     >
-      {TABS.map(([key, label]) => {
-        const isActive = currentTab === key;
-        const itemColor = isActive ? t.tabOnColor : t.mute;
+      <View style={styles.tabsRow}>
+        {TABS.map(([key, label]) => {
+          const isActive = currentTab === key;
+          const color = isActive ? activeColor : inactiveColor;
 
-        return (
-          <TouchableOpacity
-            key={key}
-            style={[
-              styles.tabButton,
-              isActive && { backgroundColor: t.tabOnBg },
-            ]}
-            onPress={() => onSelectTab(key)}
-            activeOpacity={0.8}
-          >
-            <PrototypeTabIcon tab={key} color={itemColor} />
-            <Text
-              style={[
-                styles.tabLabel,
-                {
-                  color: itemColor,
-                  fontWeight: isActive ? '700' : '400',
-                },
-              ]}
+          return (
+            <TouchableOpacity
+              key={key}
+              style={styles.tabButton}
+              onPress={() => onSelectTab(key)}
+              activeOpacity={0.7}
             >
-              {label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
+              <View style={styles.iconWrap}>
+                {renderTabIcon(key, color, isActive)}
+                {isActive && (
+                  <View
+                    style={[
+                      styles.activeDot,
+                      { backgroundColor: activeColor },
+                    ]}
+                  />
+                )}
+              </View>
+
+              <Text
+                style={[
+                  styles.tabLabel,
+                  {
+                    color,
+                    fontWeight: isActive ? '700' : '500',
+                  },
+                ]}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  tabs: {
+  tabsDock: {
     position: 'absolute',
-    left: 14,
-    right: 14,
-    bottom: 14,
-    zIndex: 3,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: 8,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 10,
+  },
+  tabsRow: {
     flexDirection: 'row',
-    borderWidth: 1,
-    borderRadius: 26,
-    padding: 4,
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    maxWidth: 500,
+    alignSelf: 'center',
+    width: '100%',
   },
   tabButton: {
     flex: 1,
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 3,
-    paddingTop: 9,
-    paddingBottom: 10,
-    borderRadius: 22,
+    paddingVertical: 4,
+  },
+  iconWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    height: 24,
+  },
+  activeDot: {
+    position: 'absolute',
+    bottom: -3,
+    width: 3.5,
+    height: 3.5,
+    borderRadius: 2,
   },
   tabLabel: {
-    fontSize: 11,
-    letterSpacing: 0.2,
+    ...TYPO.micro,
+    fontSize: 10,
+    letterSpacing: 0.1,
+    textTransform: 'none',
+    marginTop: 2,
   },
 });

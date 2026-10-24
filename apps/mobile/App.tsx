@@ -58,11 +58,12 @@ export default function App() {
     days: 7,
   });
 
-  // First-launch Onboarding & Navigation Drawers/Sheets
-  const [onboardingOpen, setOnboardingOpen] = useState(true);
+  // First-launch Onboarding & Navigation Drawers/Sheets (accessible via Hamburger drawer)
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [inboxOpen, setInboxOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Video Catalog, Categories & Continue Watching State
   const [vids] = useState<PrototypeVideo[]>(INITIAL_VIDEOS);
@@ -255,6 +256,12 @@ export default function App() {
           unreadNotificationsCount={unreadCount}
           onOpenDrawer={() => setDrawerOpen(true)}
           onOpenInbox={() => setInboxOpen(true)}
+          onPressSearch={() => {
+            setSearchOpen((prev) => !prev);
+            if (tab !== 'home') {
+              handleSelectTab('home');
+            }
+          }}
           onPressMember={() => {
             if (reg) {
               setQrMerchantContext(undefined);
@@ -317,6 +324,12 @@ export default function App() {
               onPlayVideo={(vid) => setActiveVideo(vid)}
               onOpenRegister={() => setRegisterOpen(true)}
               onSelectYouTubeVideo={(video) => setSelectedYouTubeVideo(video)}
+              onPushToast={(title, msg) =>
+                pushToast(title, msg, 'announcement')
+              }
+              onSelectTab={handleSelectTab}
+              searchOpen={searchOpen}
+              onCloseSearch={() => setSearchOpen(false)}
             />
           )}
 

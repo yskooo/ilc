@@ -16,6 +16,7 @@ import {
   SERIF_FONT,
   SANS_FONT,
 } from '../constants/prototypeTheme';
+import { FONT_STACK } from '../constants/uiTokens';
 
 export const H1: React.FC<{
   theme: ThemeMode;
@@ -347,31 +348,39 @@ export const ProtoSelect: React.FC<{
 
 const styles = StyleSheet.create({
   h1: {
-    fontSize: 31,
-    letterSpacing: -0.5,
+    fontSize: 28,
+    letterSpacing: -0.6,
     lineHeight: 34,
-    fontWeight: '500',
+    fontWeight: '700',
     margin: 0,
   },
   h2: {
-    fontSize: 21,
-    lineHeight: 25,
-    fontWeight: '500',
-    marginTop: 26,
-    marginBottom: 12,
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '700',
+    letterSpacing: -0.4,
+    marginTop: 24,
+    marginBottom: 10,
   },
   h3: {
-    fontSize: 15,
-    lineHeight: 19,
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '600',
     margin: 0,
   },
   mute: {
-    fontSize: 13,
-    lineHeight: 19,
+    fontFamily: FONT_STACK,
+    fontSize: 13.5,
+    lineHeight: 20,
+    letterSpacing: -0.1,
   },
   label: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontFamily: FONT_STACK,
+    fontSize: 11,
+    fontWeight: '800',
+    lineHeight: 15,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
   },
   btn: {
     borderRadius: 99,
@@ -384,8 +393,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   btnText: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 14.5,
+    fontWeight: '700',
   },
   btnAlt: {
     borderRadius: 99,
@@ -397,22 +406,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnAltText: {
-    fontSize: 15,
+    fontSize: 13.5,
     fontWeight: '600',
   },
   chip: {
     borderRadius: 99,
-    paddingVertical: 6,
-    paddingHorizontal: 15,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     borderWidth: 1,
   },
   chipText: {
-    fontSize: 14.5,
+    fontSize: 13.5,
+    fontWeight: '600',
   },
   promo: {
     borderWidth: 1,
-    borderRadius: 22,
-    padding: 14,
+    borderRadius: 18,
+    padding: 18,
     marginVertical: 14,
   },
   input: {

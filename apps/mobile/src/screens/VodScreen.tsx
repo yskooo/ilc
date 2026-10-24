@@ -8,10 +8,10 @@ import {
   H3,
   MuteText,
   PromoBox,
-  ProtoButton,
   ProtoInput,
   ProtoSelect,
 } from '../components/PrototypePrimitives';
+import { ILCButton } from '../components/ILCButton';
 import {
   HUBS,
   MERCHANTS,
@@ -20,6 +20,7 @@ import {
   ThemeMode,
   computeMemberId,
 } from '../constants/prototypeTheme';
+import { RADII, TYPO } from '../constants/uiTokens';
 
 interface MoreScreenProps {
   theme: ThemeMode;
@@ -93,8 +94,8 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
   return (
     <View>
       <H1 theme={theme}>Profile & Settings</H1>
-      <MuteText theme={theme} style={{ marginTop: 4, marginBottom: 6 }}>
-        Manage your account details, notifications, and app preferences.
+      <MuteText theme={theme} style={{ marginTop: 4, marginBottom: 8 }}>
+        Manage digital pass credentials, airport geofence alerts, and viewing preferences.
       </MuteText>
 
       {/* Account Details Card */}
@@ -127,15 +128,20 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
             </View>
 
             <View style={styles.accountActions}>
-              <ProtoButton
+              <ILCButton
                 theme={theme}
+                variant="primary"
+                size="sm"
+                icon="maximize-2"
                 label="Show QR Card"
                 onPress={onOpenFullscreenQr}
                 style={{ flex: 1 }}
               />
-              <ProtoButton
+              <ILCButton
                 theme={theme}
-                alt
+                variant="outline"
+                size="sm"
+                icon="log-out"
                 label="Log out"
                 onPress={onSignOut}
               />
@@ -144,14 +150,16 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
         ) : (
           <View>
             <H3 theme={theme}>Guest Traveler</H3>
-            <MuteText theme={theme} style={{ marginTop: 4, marginBottom: 10 }}>
+            <MuteText theme={theme} style={{ marginTop: 4, marginBottom: 12 }}>
               Create your free account to unlock your digital membership card,
               welcome gift, and 5% partner discount.
             </MuteText>
-            <ProtoButton
+            <ILCButton
               theme={theme}
+              variant="primary"
+              size="md"
+              fullWidth
               label="Create free account"
-              full
               onPress={onOpenRegister}
             />
           </View>
@@ -287,10 +295,12 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
         numberOfLines={3}
       />
 
-      <ProtoButton
+      <ILCButton
         theme={theme}
+        variant="primary"
+        size="md"
+        fullWidth
         label="Send feedback"
-        full
         onPress={handleSendFeedback}
       />
 
@@ -323,10 +333,12 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
         onChange={onChangeHub}
       />
 
-      <ProtoButton
+      <ILCButton
         theme={theme}
-        alt
-        full
+        variant="outline"
+        size="md"
+        fullWidth
+        icon="navigation"
         label="Test arrival geo alert"
         onPress={onSimulateGeo}
       />
@@ -338,9 +350,10 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
             {theme === 'dark' ? 'Dark forest theme' : 'Light island theme'}
           </MuteText>
         </View>
-        <ProtoButton
+        <ILCButton
           theme={theme}
-          alt
+          variant="outline"
+          size="sm"
           label={theme === 'dark' ? '☀ Light' : '☾ Dark'}
           onPress={onToggleTheme}
         />

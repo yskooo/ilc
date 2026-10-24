@@ -9,6 +9,7 @@ import {
   TextInput,
   Platform,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import {
@@ -17,19 +18,29 @@ import {
   H3,
   MuteText,
   PromoBox,
-  ProtoButton,
   ProtoChip,
 } from '../components/PrototypePrimitives';
+import { ILCButton } from '../components/ILCButton';
 import { VideoCard } from '../components/VideoCard';
 import { ShortsCard } from '../components/ShortsCard';
+import { CinematicHero } from '../components/CinematicHero';
+import { PromoBannerCarousel } from '../components/PromoBannerCarousel';
+import { SponsoredPublicationBanner } from '../components/SponsoredPublicationBanner';
+import {
+  OriginalsPosterCard,
+  ILC_ORIGINALS_CATALOG,
+  OriginalsPosterItem,
+} from '../components/OriginalsPosterCard';
 import {
   PROTOTYPE_THEMES,
+  PrototypeTab,
   PrototypeVideo,
   ThemeMode,
   VIDEO_CATEGORIES,
   VideoCategoryFilter,
   WatchHistoryItem,
 } from '../constants/prototypeTheme';
+import { RADII, TYPO } from '../constants/uiTokens';
 import { YouTubeVideoItem } from '@ilc/shared';
 import { youtubeService } from '../services/youtube';
 
@@ -45,6 +56,10 @@ interface HomeScreenProps {
   onPlayVideo: (video: PrototypeVideo) => void;
   onOpenRegister: () => void;
   onSelectYouTubeVideo?: (video: YouTubeVideoItem) => void;
+  onPushToast?: (title: string, msg: string) => void;
+  onSelectTab?: (tab: PrototypeTab) => void;
+  searchOpen?: boolean;
+  onCloseSearch?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -59,8 +74,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onPlayVideo,
   onOpenRegister,
   onSelectYouTubeVideo,
+  onPushToast,
+  onSelectTab,
+  searchOpen = false,
+  onCloseSearch,
 }) => {
   const t = PROTOTYPE_THEMES[theme];
+  const isDark = theme === 'dark';
   const [searchQuery, setSearchQuery] = useState('');
 
   const firstName = (memberName || 'Juan').split(' ')[0];
@@ -113,37 +133,155 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      <H1 theme={theme}>
-        {isRegistered ? `Welcome back, ${firstName}` : 'Stories from the islands'}
-      </H1>
-      <MuteText theme={theme} style={styles.subtitle}>
-        Travel and lifestyle films, live events and member rewards.
-      </MuteText>
+      <View style={styles.headerGreetingWrap}>
+        <Text style={[styles.headerGreetingTitle, { color: t.ink }]}>
+          {isRegistered ? `Welcome back, ${firstName}` : `Welcome, ${firstName}`}
+        </Text>
+        {/* <Text
+          style={[
+            styles.headerGreetingSub,
+            { color: isDark ? 'rgba(255,255,255,0.65)' : '#6C7E72' },
+          ]}
+        >
+          Curated coastal cinema, live cultural broadcasts, and exclusive member privileges.
+        </Text> */}
+      </View>
 
-      {/* Search Bar */}
-      <View
-        style={[
-          styles.searchBar,
-          {
-            backgroundColor: t.inputBg,
-            borderColor: t.inputBorder,
-          },
-        ]}
-      >
-        <Feather name="search" size={16} color={t.mute} />
-        <TextInput
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder="Search Explore, Food, Resorts, Festivals..."
-          placeholderTextColor={t.mute}
-          style={[styles.searchInput, { color: t.ink }]}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
+      {/* Expandable Search Bar (Activated via Top Right Search Icon) */}
+      {(searchOpen || searchQuery.length > 0) && (
+        <View
+          style={[
+            styles.searchBar,
+            {
+              backgroundColor: t.inputBg,
+              borderColor: t.inputBorder,
+              marginTop: 12,
+              marginBottom: 4,
+            },
+          ]}
+        >
+          <Feather name="search" size={16} color={t.mute} />
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search films, island culinary, resorts & festivals..."
+            placeholderTextColor={t.mute}
+            autoFocus={searchOpen}
+            style={[styles.searchInput, { color: t.ink }]}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              setSearchQuery('');
+              if (onCloseSearch) onCloseSearch();
+            }}
+          >
             <Feather name="x-circle" size={16} color={t.mute} />
           </TouchableOpacity>
-        )}
-      </View>
+        </View>
+      )}
+
+      {/* Cinematic Hero Showcase (Matching Netflix Reference Layout) */}
+      {featured && selectedCategory === 'All' && !searchQuery.trim() && (
+        <CinematicHero
+          theme={theme}
+          title={featured.t || 'Lagoon Diaries: El Nido'}
+          tagline="TRAVEL · ILC ORIGINAL"
+          synopsis="Hop between hidden lagoons and limestone cathedrals with local boatmen who've mapped these waters for generations."
+          imageUrl={featured.thumbnailUrl || 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=1080&q=85'}
+          duration={featured.m || '28m'}
+          onWatchNow={() => onPlayVideo(featured)}
+          onToggleMyList={(added) => {
+            if (onPushToast) {
+              onPushToast(
+                added ? 'Added to My List' : 'Removed from List',
+                `"${featured.t}" saved to your private playlist.`
+              );
+            }
+          }}
+          onOpenDetails={() => onPlayVideo(featured)}
+        />
+      )}
+
+      {/* Infinite Swipable Promo Banner Carousel (GCash Banner Style: Membership, Otamigo Ads, Resorts) */}
+      {!searchQuery.trim() && (
+        <PromoBannerCarousel
+          theme={theme}
+          onOpenMembership={onOpenRegister}
+          onOpenTravel={() => {
+            if (onSelectTab) onSelectTab('travel');
+          }}
+          onOpenLiveTv={() => {
+            if (onSelectTab) onSelectTab('live');
+          }}
+          onPushToast={onPushToast}
+        />
+      )}
+
+      {/* ORIGINALS & EXCLUSIVES (Matching Netflix Reference Layout) */}
+      {selectedCategory === 'All' && !searchQuery.trim() && (
+        <View style={{ marginBottom: 20 }}>
+          <View style={styles.sectionHeader}>
+            <View>
+              <View style={styles.sectionBadgeRow}>
+                <View style={[styles.shortsTag, { backgroundColor: '#C9DC3F' }]}>
+                  <Text style={[styles.shortsTagIcon, { color: '#06240F' }]}>★</Text>
+                  <Text style={[styles.shortsTagText, { color: '#06240F' }]}>ILC EXCLUSIVES</Text>
+                </View>
+              </View>
+              <H2 theme={theme} style={{ marginTop: 2, marginBottom: 0 }}>
+                Originals & Exclusives
+              </H2>
+            </View>
+            <MuteText theme={theme} style={styles.shortsSubHint}>
+              Cinematic series
+            </MuteText>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingRight: 8, paddingTop: 4 }}
+          >
+            {ILC_ORIGINALS_CATALOG.map((orig) => (
+              <OriginalsPosterCard
+                key={orig.id}
+                item={orig}
+                theme={theme}
+                onPress={(item) => {
+                  onPlayVideo({
+                    id: item.id,
+                    t: item.title,
+                    m: item.duration,
+                    category: 'Originals',
+                    sceneIndex: 0,
+                    thumbnailUrl: item.imageUrl,
+                    embedUrl: item.embedUrl,
+                    isShort: false,
+                  });
+                }}
+              />
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
+      {/* Welcome Gift Promo Banner */}
+      {!isRegistered && (
+        <PromoBox theme={theme} style={{ marginTop: 16 }}>
+          <H3 theme={theme}>Join free, get a welcome gift</H3>
+          <MuteText theme={theme} style={styles.promoSub}>
+            {gift.text}. Valid {gift.days} days after you register.
+          </MuteText>
+          <ILCButton
+            theme={theme}
+            variant="primary"
+            size="md"
+            fullWidth
+            label="Create free account"
+            onPress={onOpenRegister}
+          />
+        </PromoBox>
+      )}
 
       {/* Video Category Chips */}
       <ScrollView
@@ -162,41 +300,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         ))}
         {(selectedCategory === 'Philippines' ||
           selectedCategory === 'International') && (
-          <ProtoChip
-            theme={theme}
-            label={`${selectedCategory} ✕`}
-            active
-            onPress={() => onSelectCategory('All')}
-          />
-        )}
+            <ProtoChip
+              theme={theme}
+              label={`${selectedCategory} ✕`}
+              active
+              onPress={() => onSelectCategory('All')}
+            />
+          )}
       </ScrollView>
-
-      {/* Featured Hero Video */}
-      {featured && selectedCategory === 'All' && !searchQuery.trim() && (
-        <VideoCard
-          video={featured}
-          index={0}
-          onPress={() => onPlayVideo(featured)}
-          theme={theme}
-          layout="hero"
-        />
-      )}
-
-      {/* Welcome Gift Promo Banner */}
-      {!isRegistered && (
-        <PromoBox theme={theme} style={{ marginTop: 16 }}>
-          <H3 theme={theme}>Join free, get a welcome gift</H3>
-          <MuteText theme={theme} style={styles.promoSub}>
-            {gift.text}. Valid {gift.days} days after you register.
-          </MuteText>
-          <ProtoButton
-            theme={theme}
-            label="Create free account"
-            full
-            onPress={onOpenRegister}
-          />
-        </PromoBox>
-      )}
 
       {/* Continue Watching Row */}
       {continueItems.length > 0 && !searchQuery.trim() && (
@@ -233,7 +344,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </View>
           </View>
           <H2 theme={theme} style={{ marginTop: 2, marginBottom: 0 }}>
-            YouTube Shorts
+            Island Shorts & Reels
           </H2>
         </View>
         <MuteText theme={theme} style={styles.shortsSubHint}>
@@ -291,10 +402,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <View style={styles.sectionHeader}>
             <View>
               <H2 theme={theme} style={{ marginBottom: 0 }}>
-                Official Channel Videos
+                Featured Island Cinema
               </H2>
               <MuteText theme={theme} style={{ marginTop: 2 }}>
-                From @islandlivingchannel1087
+                Full-length broadcasts curated from Island Living Channel
               </MuteText>
             </View>
           </View>
@@ -366,9 +477,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <MuteText theme={theme} style={{ marginTop: 4, marginBottom: 10 }}>
             Try clearing your search or selecting another category.
           </MuteText>
-          <ProtoButton
+          <ILCButton
             theme={theme}
-            alt
+            variant="outline"
+            size="sm"
             label="Reset filters"
             onPress={() => {
               setSearchQuery('');
@@ -385,6 +497,24 @@ const styles = StyleSheet.create({
   container: {
     paddingBottom: 10,
   },
+  headerGreetingWrap: {
+    paddingTop: 22,
+    paddingBottom: 6,
+    paddingHorizontal: 2,
+    marginBottom: 8,
+  },
+  headerGreetingTitle: {
+    ...TYPO.bodyBold,
+    fontSize: 18.5,
+    lineHeight: 24,
+    letterSpacing: -0.3,
+  },
+  headerGreetingSub: {
+    ...TYPO.footnote,
+    fontSize: 12,
+    lineHeight: 16.5,
+    marginTop: 3,
+  },
   subtitle: {
     marginTop: 8,
     marginBottom: 14,
@@ -394,10 +524,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginBottom: 12,
+    borderRadius: 99,
+    paddingHorizontal: 16,
+    paddingVertical: 11,
+    marginBottom: 14,
   },
   searchInput: {
     flex: 1,
