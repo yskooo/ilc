@@ -11,6 +11,7 @@
     "build": "npm run --prefix packages/shared build && npm run --prefix apps/cms build",
     "dev:cms": "npm run --prefix apps/cms dev",
     "dev:mobile": "npm run --prefix packages/shared build && npm run --prefix apps/mobile start",
+    "deploy:mobile-web": "npm run --prefix apps/mobile deploy:web",
     "test": "npm run --prefix packages/shared test && npm run --prefix apps/cms test",
     "typecheck": "npm run --prefix packages/shared build && tsc -p apps/cms --noEmit"
   },
