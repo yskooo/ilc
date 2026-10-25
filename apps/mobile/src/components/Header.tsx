@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { BrandLogo, BrandStripe } from './PrototypeArtwork';
+import { BrandLogo } from './PrototypeArtwork';
 import {
   PROTOTYPE_THEMES,
   ThemeMode,
-  computeMemberId,
 } from '../constants/prototypeTheme';
+import { RADII, TYPO } from '../constants/uiTokens';
 
 interface HeaderProps {
   theme: ThemeMode;
@@ -14,9 +14,10 @@ interface HeaderProps {
   isRegistered: boolean;
   memberEmail: string;
   unreadNotificationsCount: number;
-  onPressMember: () => void;
-  onOpenDrawer: () => void;
+  onPressMember?: () => void;
+  onOpenDrawer?: () => void;
   onOpenInbox: () => void;
+  onPressSearch?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -26,68 +27,49 @@ export const Header: React.FC<HeaderProps> = ({
   memberEmail,
   unreadNotificationsCount,
   onPressMember,
-  onOpenDrawer,
   onOpenInbox,
+  onPressSearch,
 }) => {
   const t = PROTOTYPE_THEMES[theme];
+  const isDark = theme === 'dark';
+  const initial = (memberEmail ? memberEmail[0] : 'J').toUpperCase();
 
   return (
-    <View style={styles.headerContainer}>
+    <View
+      style={[
+        styles.headerContainer,
+        {
+          backgroundColor: isDark ? 'rgba(4, 21, 11, 0.92)' : 'rgba(255, 255, 255, 0.94)',
+          borderBottomColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
+        },
+        Platform.OS === 'web' &&
+          ({
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          } as any),
+      ]}
+    >
       <View style={styles.topRow}>
-        <View style={styles.leftRow}>
-          <TouchableOpacity
-            style={[
-              styles.iconBtn,
-              {
-                borderColor: t.line,
-                backgroundColor: t.inputBg,
-              },
-            ]}
-            onPress={onOpenDrawer}
-            activeOpacity={0.8}
-            accessibilityLabel="Open navigation menu"
-          >
-            <Feather name="menu" size={18} color={t.ink} />
-          </TouchableOpacity>
-
+        {/* Left: Official Brand Logo (Clean & Spacious) */}
+        <View style={styles.brandWrap}>
           <BrandLogo theme={theme} />
         </View>
 
+        {/* Right: Apple-standard Action Icons */}
         <View style={styles.actionsRow}>
-          <TouchableOpacity
-            style={[
-              styles.memberPill,
-              {
-                borderColor: t.btnAltBorder,
-                backgroundColor: isRegistered ? t.tabOnBg : 'transparent',
-              },
-            ]}
-            onPress={onPressMember}
-            activeOpacity={0.8}
-          >
-            <Feather
-              name={isRegistered ? 'credit-card' : 'user-plus'}
-              size={12}
-              color={t.btnAltColor}
-            />
-            <Text style={[styles.memberPillText, { color: t.btnAltColor }]}>
-              {isRegistered ? computeMemberId(memberEmail) : 'Join Free'}
-            </Text>
-          </TouchableOpacity>
-
+          {/* Notification Bell */}
           <TouchableOpacity
             style={[
               styles.iconBtn,
               {
-                borderColor: t.line,
-                backgroundColor: t.inputBg,
+                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
               },
             ]}
             onPress={onOpenInbox}
-            activeOpacity={0.8}
+            activeOpacity={0.75}
             accessibilityLabel="Open notification inbox"
           >
-            <Feather name="bell" size={16} color={t.ink} />
+            <Feather name="bell" size={17} color={t.ink} />
             {unreadNotificationsCount > 0 && (
               <View style={styles.unreadBadge}>
                 <Text style={styles.unreadBadgeText}>
@@ -97,90 +79,107 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </TouchableOpacity>
 
+          {/* Theme Mode Toggle (Moon / Sun) */}
           <TouchableOpacity
             style={[
               styles.iconBtn,
               {
-                borderColor: t.line,
-                backgroundColor: t.inputBg,
+                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
               },
             ]}
             onPress={onToggleTheme}
-            activeOpacity={0.8}
+            activeOpacity={0.75}
             accessibilityLabel="Switch light or dark mode"
           >
             <Feather
               name={theme === 'light' ? 'moon' : 'sun'}
-              size={16}
+              size={17}
               color={t.ink}
             />
           </TouchableOpacity>
+
+          {/* Top Right: Search Icon (Replaces Profile Button as requested) */}
+          <TouchableOpacity
+            style={[
+              styles.iconBtn,
+              {
+                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+              },
+            ]}
+            onPress={onPressSearch}
+            activeOpacity={0.75}
+            accessibilityLabel="Search films and experiences"
+          >
+            <Feather name="search" size={17} color={t.ink} />
+          </TouchableOpacity>
         </View>
       </View>
-
-      <BrandStripe />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   headerContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 14,
+    paddingTop: Platform.OS === 'ios' ? 44 : 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    zIndex: 10,
   },
   topRow: {
+    height: 52,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 8,
+    paddingHorizontal: 16,
   },
-  leftRow: {
+  brandWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
   },
   actionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
-  },
-  memberPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingVertical: 7,
-    paddingHorizontal: 11,
-    borderRadius: 99,
-    borderWidth: 1,
-  },
-  memberPillText: {
-    fontSize: 12,
-    fontWeight: '600',
+    gap: 10,
   },
   iconBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
+  avatarBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 2,
+  },
+  avatarInitial: {
+    ...TYPO.caption,
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 13,
+  },
   unreadBadge: {
     position: 'absolute',
-    top: -3,
-    right: -3,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
+    top: 2,
+    right: 2,
+    minWidth: 15,
+    height: 15,
+    borderRadius: 7.5,
     backgroundColor: '#E1251B',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
   },
   unreadBadgeText: {
     color: '#FFFFFF',
-    fontSize: 9.5,
-    fontWeight: '700',
+    fontSize: 8.5,
+    fontWeight: '800',
   },
 });

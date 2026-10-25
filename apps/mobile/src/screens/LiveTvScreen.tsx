@@ -12,15 +12,15 @@ import {
   H1,
   H2,
   MuteText,
-  ProtoButton,
 } from '../components/PrototypePrimitives';
+import { ILCButton } from '../components/ILCButton';
 import { YouTubeEmbed } from '../components/YouTubeEmbed';
 import {
   LIVE_SCHEDULE,
   PROTOTYPE_THEMES,
-  SERIF_FONT,
   ThemeMode,
 } from '../constants/prototypeTheme';
+import { RADII, TYPO } from '../constants/uiTokens';
 import {
   youtubeService,
   ILC_CHANNEL_HANDLE,
@@ -85,17 +85,17 @@ export const LiveTvScreen: React.FC<LiveTvScreenProps> = ({
   return (
     <View style={styles.container}>
       {/* Title & Subtitle */}
-      <H1 theme={theme}>Live TV</H1>
+      {/* <H1 theme={theme}>Live TV</H1>
       <MuteText theme={theme} style={styles.subtitle}>
-        Real-time events stream inside the app through YouTube Live.
-      </MuteText>
+        Official live broadcasts, festival events, and cultural specials streaming directly from the Visayas.
+      </MuteText> */}
 
       {/* Stream Status Header */}
       <View style={styles.statusRow}>
         <View style={styles.liveBadgeRow}>
           <View style={styles.livePill}>
             <View style={styles.livePillDot} />
-            <Text style={styles.livePillText}>YOUTUBE LIVE STREAM</Text>
+            <Text style={styles.livePillText}>OFFICIAL LIVE STREAM</Text>
           </View>
           <View style={[styles.hdBadge, { borderColor: t.line }]}>
             <Text style={[styles.hdBadgeText, { color: t.mute }]}>1080p HD</Text>
@@ -116,9 +116,9 @@ export const LiveTvScreen: React.FC<LiveTvScreenProps> = ({
         style={[
           styles.playerContainer,
           Platform.OS === 'web' &&
-            ({
-              boxShadow: '0 20px 48px rgba(0, 0, 0, 0.45)',
-            } as any),
+          ({
+            boxShadow: '0 20px 48px rgba(0, 0, 0, 0.45)',
+          } as any),
         ]}
       >
         <YouTubeEmbed
@@ -139,7 +139,8 @@ export const LiveTvScreen: React.FC<LiveTvScreenProps> = ({
         <Text
           style={[
             styles.streamTitle,
-            { color: t.ink, fontFamily: SERIF_FONT },
+            TYPO.h2,
+            { color: t.ink },
           ]}
         >
           {streamTitle}
@@ -162,24 +163,24 @@ export const LiveTvScreen: React.FC<LiveTvScreenProps> = ({
           </View>
 
           <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={[styles.actionBtn, { borderColor: t.line }]}
+            <ILCButton
+              theme={theme}
+              variant="outline"
+              size="sm"
+              icon="external-link"
+              iconPosition="right"
+              label="YouTube"
               onPress={handleOpenStreamOnYouTube}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.actionBtnText, { color: t.ink }]}>
-                Watch on YouTube ↗
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionBtn, { borderColor: t.line }]}
+            />
+            <ILCButton
+              theme={theme}
+              variant="secondary"
+              size="sm"
+              icon="share-2"
+              iconPosition="left"
+              label="Share"
               onPress={handleShareStream}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.actionBtnText, { color: t.ink }]}>
-                Share ↗
-              </Text>
-            </TouchableOpacity>
+            />
           </View>
         </View>
 
@@ -218,10 +219,13 @@ export const LiveTvScreen: React.FC<LiveTvScreenProps> = ({
                 </MuteText>
               </View>
             </View>
-            <ProtoButton
+            <ILCButton
               theme={theme}
-              alt={!isSet}
-              label={isSet ? '✓ Reminded' : 'Remind me'}
+              variant={isSet ? 'primary' : 'outline'}
+              size="sm"
+              icon={isSet ? 'check' : 'bell'}
+              iconPosition="left"
+              label={isSet ? 'Reminded' : 'Remind me'}
               onPress={() => handleToggleReminder(idx, title)}
             />
           </View>
@@ -246,7 +250,7 @@ export const LiveTvScreen: React.FC<LiveTvScreenProps> = ({
                   styles.categoryCard,
                   { backgroundColor: t.surf, borderColor: t.line },
                 ]}
-                onPress={() => Linking.openURL(cat.playlistUrl).catch(() => {})}
+                onPress={() => Linking.openURL(cat.playlistUrl).catch(() => { })}
                 activeOpacity={0.85}
               >
                 <Image

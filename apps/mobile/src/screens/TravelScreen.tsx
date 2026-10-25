@@ -1,21 +1,24 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform, Linking } from 'react-native';
 import {
-  FieldLabel,
-  H1,
-  H2,
-  MuteText,
-  ProtoButton,
-  ProtoChip,
-  ProtoInput,
-} from '../components/PrototypePrimitives';
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Linking,
+  TouchableOpacity,
+} from 'react-native';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import {
   PROTOTYPE_THEMES,
   PrototypeTravelQuery,
-  SANS_FONT,
   TRAVEL_RESULTS,
   ThemeMode,
 } from '../constants/prototypeTheme';
+import { RADII, SHADOWS, TYPO } from '../constants/uiTokens';
+import { ServicePill, TravelServiceType } from '../components/ServicePill';
+import { RouteSelectorCard } from '../components/RouteSelectorCard';
+import { TravelTicketCard } from '../components/TravelTicketCard';
+import { ILCButton } from '../components/ILCButton';
 
 interface TravelScreenProps {
   theme: ThemeMode;
@@ -26,11 +29,7 @@ interface TravelScreenProps {
   onPushToast: (title: string, msg: string) => void;
 }
 
-const TRAVEL_TYPES: ('Flights' | 'Ferries' | 'Stays')[] = [
-  'Flights',
-  'Ferries',
-  'Stays',
-];
+const SERVICE_TABS: TravelServiceType[] = ['Ferries', 'Flights', 'Stays'];
 
 export const TravelScreen: React.FC<TravelScreenProps> = ({
   theme,
@@ -41,119 +40,151 @@ export const TravelScreen: React.FC<TravelScreenProps> = ({
   onPushToast,
 }) => {
   const t = PROTOTYPE_THEMES[theme];
-  const partnerUrl = `https://otamigo.com/search?type=${query.type.toLowerCase()}&from=${encodeURIComponent(
-    query.from
-  )}&to=${encodeURIComponent(query.to)}&aff=ILC-MEMBER`;
+  const isDark = theme === 'dark';
+  const partnerUrl = 'https://otamigo.com';
+
+  const handleSwap = () => {
+    onChangeQuery({
+      from: query.to,
+      to: query.from,
+    });
+  };
+
+  const handleBook = (slot: string, price: string) => {
+    onPushToast(
+      'Otamigo Partner Booking',
+      `${slot} (${price}) selected with your 5% ILC member discount.`
+    );
+    Linking.openURL(partnerUrl).catch(() => {});
+  };
 
   return (
-    <View>
-      <H1 theme={theme}>Travel</H1>
-      <MuteText theme={theme} style={styles.subtitle}>
-        Book flights, ferries and stays through our partner Otamigo, without
-        leaving the app.
-      </MuteText>
+    <View style={styles.container}>
+      {/* Editorial Header */}
+      <View style={styles.header}>
+        <View style={styles.taglineRow}>
+          <Text style={[TYPO.micro, { color: '#0B6A2E', letterSpacing: 1.2 }]}>
+            ISLAND TRANSIT & STAYS
+          </Text>
+          <View style={[styles.partnerMiniBadge, { backgroundColor: isDark ? 'rgba(201,220,63,0.18)' : '#EAF2E6' }]}>
+            <Feather name="shield" size={10} color="#0B6A2E" style={{ marginRight: 3 }} />
+            <Text style={[TYPO.micro, { color: '#0B6A2E' }]}>Otamigo Verified</Text>
+          </View>
+        </View>
 
-      <View style={styles.chipsRow}>
-        {TRAVEL_TYPES.map((type) => (
-          <ProtoChip
-            key={type}
-            theme={theme}
-            label={type}
-            active={query.type === type}
-            onPress={() => onChangeQuery({ type }, true)}
-          />
-        ))}
+        <Text style={[TYPO.h1, { color: t.ink, marginTop: 4 }]}>
+          Travel across the islands
+        </Text>
+        <Text style={[TYPO.subhead, { color: isDark ? 'rgba(255,255,255,0.72)' : '#526658', marginTop: 4 }]}>
+          Seamless fastcraft, flights, and boutique island stays with guaranteed 5% member pricing.
+        </Text>
       </View>
 
-      <FieldLabel theme={theme}>
-        {query.type === 'Stays' ? 'Destination' : 'From'}
-      </FieldLabel>
-      <ProtoInput
+      {/* Step 1: Grab-style Service Pills */}
+      <View style={styles.serviceRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.serviceScroll}
+        >
+          {SERVICE_TABS.map((type) => (
+            <ServicePill
+              key={type}
+              label={type}
+              active={query.type === type}
+              theme={theme}
+              badge={type === 'Ferries' ? 'Fast' : undefined}
+              onPress={() => onChangeQuery({ type: type as any }, true)}
+            />
+          ))}
+        </ScrollView>
+      </View>
+
+      {/* Step 2: Grab-style Route & Date Selector Card */}
+      <RouteSelectorCard
         theme={theme}
-        value={query.from}
-        onChangeText={(v) => onChangeQuery({ from: v })}
+        serviceType={query.type}
+        from={query.from}
+        to={query.to}
+        date={query.date}
+        onChangeFrom={(from) => onChangeQuery({ from })}
+        onChangeTo={(to) => onChangeQuery({ to })}
+        onChangeDate={(date) => onChangeQuery({ date })}
+        onSwapLocations={handleSwap}
       />
 
-      <FieldLabel theme={theme}>
-        {query.type === 'Stays' ? 'Check-in' : 'To'}
-      </FieldLabel>
-      <ProtoInput
-        theme={theme}
-        value={query.to}
-        onChangeText={(v) => onChangeQuery({ to: v })}
-      />
-
-      <FieldLabel theme={theme}>Date</FieldLabel>
-      {Platform.OS === 'web' ? (
-        React.createElement('input', {
-          type: 'date',
-          value: query.date,
-          onChange: (e: any) => onChangeQuery({ date: e.target.value }),
-          style: {
-            width: '100%',
-            padding: '12px 14px',
-            border: `1px solid ${t.inputBorder}`,
-            borderRadius: 14,
-            backgroundColor: t.inputBg,
-            color: t.ink,
-            fontSize: 15,
-            fontFamily: SANS_FONT,
-            marginTop: 4,
-            marginBottom: 10,
-            outline: 'none',
-            boxSizing: 'border-box',
-          },
-        })
-      ) : (
-        <ProtoInput
-          theme={theme}
-          value={query.date}
-          placeholder="YYYY-MM-DD"
-          onChangeText={(v) => onChangeQuery({ date: v })}
-        />
-      )}
-
-      <ProtoButton
-        theme={theme}
-        label="Search on Otamigo"
-        full
+      {/* Step 3: High-Affordance Grab CTA */}
+      <ILCButton
+        label={`Find ${query.type} on Otamigo`}
+        variant="primary"
+        size="lg"
+        fullWidth
+        icon="search"
+        iconPosition="left"
+        badge="5% OFF"
         onPress={onSearch}
+        style={{ marginBottom: 24 }}
       />
 
+      {/* Step 4: Miller's Law Curated Results (3 Top Schedules) */}
       {searched && (
-        <View>
-          <H2 theme={theme}>Available {query.type}</H2>
+        <View style={styles.resultsSection}>
+          <View style={styles.resultsHeader}>
+            <View>
+              <Text style={[TYPO.micro, { color: isDark ? 'rgba(255,255,255,0.5)' : '#7C8E82' }]}>
+                CURATED SCHEDULES
+              </Text>
+              <Text style={[TYPO.h3, { color: t.ink, marginTop: 2 }]}>
+                Recommended {query.type}
+              </Text>
+            </View>
+            <View style={styles.otamigoTag}>
+              <MaterialCommunityIcons name="ticket-percent-outline" size={14} color="#0B6A2E" />
+              <Text style={[TYPO.caption, { color: '#0B6A2E', fontWeight: '700', marginLeft: 4 }]}>
+                Member Rate
+              </Text>
+            </View>
+          </View>
 
           {TRAVEL_RESULTS.map(([slot, price, hours]) => (
-            <View
+            <TravelTicketCard
               key={slot}
-              style={[styles.row, { borderBottomColor: t.line }]}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.rowBold, { color: t.ink }]}>
-                  {query.type === 'Stays' ? 'Option' : 'Departure'} · {slot}
+              theme={theme}
+              slot={`${slot} Departure`}
+              price={price}
+              duration={hours}
+              origin={query.from}
+              destination={query.to}
+              serviceType={query.type}
+              onBook={() => handleBook(slot, price)}
+            />
+          ))}
+
+          {/* Otamigo Live Redirect Banner */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => Linking.openURL(partnerUrl).catch(() => {})}
+            style={[
+              styles.partnerBanner,
+              {
+                backgroundColor: isDark ? 'rgba(11,106,46,0.18)' : '#F3F8F2',
+                borderColor: isDark ? 'rgba(201,220,63,0.3)' : 'rgba(11,106,46,0.2)',
+              },
+            ]}
+          >
+            <View style={styles.partnerBannerLeft}>
+              <Feather name="external-link" size={18} color="#0B6A2E" />
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                <Text style={[TYPO.bodyBold, { color: t.ink }]}>
+                  View all live seats on Otamigo
                 </Text>
-                <MuteText theme={theme}>
-                  {query.from} → {query.to} ({hours})
-                </MuteText>
-              </View>
-              <View style={styles.rightCol}>
-                <Text style={[styles.rowBold, { color: t.ink }]}>{price}</Text>
-                <ProtoButton
-                  theme={theme}
-                  alt
-                  label="Book"
-                  onPress={() => {
-                    onPushToast(
-                      'Otamigo Partner Booking',
-                      `${slot} (${price}) selected with ILC member rate.`
-                    );
-                    Linking.openURL(partnerUrl).catch(() => {});
-                  }}
-                />
+                <Text style={[TYPO.caption, { color: isDark ? 'rgba(255,255,255,0.6)' : '#6B7E72' }]}>
+                  More ferry schedules, flight options, and seat choices
+                </Text>
               </View>
             </View>
-          ))}
+            <Feather name="chevron-right" size={18} color="#0B6A2E" />
+          </TouchableOpacity>
         </View>
       )}
     </View>
@@ -161,32 +192,56 @@ export const TravelScreen: React.FC<TravelScreenProps> = ({
 };
 
 const styles = StyleSheet.create({
-  subtitle: {
-    marginTop: 4,
-    marginBottom: 10,
+  container: {
+    paddingBottom: 20,
   },
-  chipsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 10,
+  header: {
+    marginBottom: 16,
   },
-  row: {
+  taglineRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 10,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
   },
-  rightCol: {
+  partnerMiniBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: RADII.pill,
   },
-  rowBold: {
-    fontSize: 15,
-    fontWeight: '700',
-    marginBottom: 2,
+  serviceRow: {
+    marginBottom: 16,
+  },
+  serviceScroll: {
+    paddingRight: 10,
+  },
+  resultsSection: {
+    marginTop: 4,
+  },
+  resultsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+  otamigoTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  partnerBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 14,
+    borderRadius: RADII.md,
+    borderWidth: 1,
+    marginTop: 6,
+    marginBottom: 16,
+  },
+  partnerBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
 });
