@@ -78,10 +78,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   return (
     <View style={styles.container}>
       {/* Header */}
-      <H1 theme={theme}>Rewards</H1>
+      {/* <H1 theme={theme}>Rewards</H1>
       <MuteText theme={theme} style={styles.subtitle}>
         Private member privileges, contactless digital pass, and curated island perks.
-      </MuteText>
+      </MuteText> */}
 
       {/* Guest Card / Digital Pass Preview */}
       {/* Guest Card / Join Membership Banner (GCash IPO Banner Style) */}

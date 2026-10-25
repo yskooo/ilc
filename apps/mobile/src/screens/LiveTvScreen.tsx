@@ -85,10 +85,10 @@ export const LiveTvScreen: React.FC<LiveTvScreenProps> = ({
   return (
     <View style={styles.container}>
       {/* Title & Subtitle */}
-      <H1 theme={theme}>Live TV</H1>
+      {/* <H1 theme={theme}>Live TV</H1>
       <MuteText theme={theme} style={styles.subtitle}>
         Official live broadcasts, festival events, and cultural specials streaming directly from the Visayas.
-      </MuteText>
+      </MuteText> */}
 
       {/* Stream Status Header */}
       <View style={styles.statusRow}>
@@ -116,9 +116,9 @@ export const LiveTvScreen: React.FC<LiveTvScreenProps> = ({
         style={[
           styles.playerContainer,
           Platform.OS === 'web' &&
-            ({
-              boxShadow: '0 20px 48px rgba(0, 0, 0, 0.45)',
-            } as any),
+          ({
+            boxShadow: '0 20px 48px rgba(0, 0, 0, 0.45)',
+          } as any),
         ]}
       >
         <YouTubeEmbed
@@ -250,7 +250,7 @@ export const LiveTvScreen: React.FC<LiveTvScreenProps> = ({
                   styles.categoryCard,
                   { backgroundColor: t.surf, borderColor: t.line },
                 ]}
-                onPress={() => Linking.openURL(cat.playlistUrl).catch(() => {})}
+                onPress={() => Linking.openURL(cat.playlistUrl).catch(() => { })}
                 activeOpacity={0.85}
               >
                 <Image
