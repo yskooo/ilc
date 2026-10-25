@@ -4,7 +4,7 @@
     "slug": "island-living-channel-digital",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/brand/ilc-logo.png",
+    "icon": "./assets/brand/app-icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/brand/ilc-logo.png",
@@ -20,8 +20,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/brand/ilc-logo.png",
-        "backgroundColor": "#FFFFFF"
+        "foregroundImage": "./assets/brand/adaptive-icon.png",
+        "backgroundColor": "#0C2B1E"
       },
       "package": "com.martinsoft.islandliving"
     },

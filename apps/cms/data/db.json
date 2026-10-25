@@ -388,11 +388,21 @@
   "settings": {
     "brand_name": "Island Living Channel",
     "logo_url": "https://www.islandlivingchannel.tv/wp-content/uploads/2022/02/ff.png",
-    "youtube_live_stream_id": "live_stream_ilc",
+    "youtube_live_stream_id": "P-iu1vverWQ",
     "youtube_channel_url": "https://www.youtube.com/@islandlivingchannel",
     "otamigo_booking_base_url": "https://otamigo.com",
     "otamigo_affiliate_id": "ilc_official",
-    "push_provider_enabled": false
+    "push_provider_enabled": false,
+    "is_live": true,
+    "live_broadcast_title": "MassKara 2026: Arena Street Dance Grand Finals",
+    "live_host_lgu": "City Government of Bacolod",
+    "live_stream_video_id": "P-iu1vverWQ",
+    "live_stream_url": "https://www.youtube.com/watch?v=P-iu1vverWQ",
+    "show_live_banner": true,
+    "live_viewer_count": "3,420",
+    "next_festival_title": "MassKara Festival 2026: Arena Street Dance Grand Finals",
+    "next_festival_date": "October 26, 2026",
+    "next_festival_location": "Bacolod City, Negros Occidental"
   },
   "audit_events": [
     {

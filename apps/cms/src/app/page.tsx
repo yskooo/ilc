@@ -1687,6 +1687,160 @@ export default function CMSDashboard() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+              {/* LIVE TV & FESTIVAL BROADCAST CONTROL CARD */}
+              <div className="card" style={{ padding: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '18px', color: 'var(--deep-ocean)', marginBottom: '2px' }}>
+                      Live TV Broadcast Control
+                    </h3>
+                    <p style={{ color: 'var(--muted-text)', fontSize: '12px' }}>
+                      Controls stream status, host LGU, and banner on mobile app.
+                    </p>
+                  </div>
+                  <span
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      letterSpacing: '0.5px',
+                      backgroundColor: settings.is_live ? '#DCFCE7' : '#F1F5F9',
+                      color: settings.is_live ? '#166534' : '#64748B',
+                      border: `1px solid ${settings.is_live ? '#86EFAC' : '#CBD5E1'}`,
+                    }}
+                  >
+                    {settings.is_live ? '● ON AIR (LIVE)' : '○ OFF-AIR (CALENDAR)'}
+                  </span>
+                </div>
+
+                <form onSubmit={handleSaveSettings}>
+                  {/* LIVE TOGGLE */}
+                  <div className="form-group" style={{ marginBottom: '14px' }}>
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!settings.is_live}
+                        onChange={(e) => setSettings({ ...settings, is_live: e.target.checked })}
+                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                      />
+                      <span style={{ fontWeight: 600 }}>Enable Active Live Broadcast (Switches mobile to Live Mode)</span>
+                    </label>
+                  </div>
+
+                  {/* SHOW BANNER TOGGLE */}
+                  <div className="form-group" style={{ marginBottom: '14px' }}>
+                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={settings.show_live_banner !== false}
+                        onChange={(e) => setSettings({ ...settings, show_live_banner: e.target.checked })}
+                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                      />
+                      <span style={{ fontWeight: 600 }}>Show Live Takeover Banner on Mobile Home Screen</span>
+                    </label>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Live Broadcast Headline</label>
+                    <input
+                      type="text"
+                      className="input-field"
+                      value={settings.live_broadcast_title || ''}
+                      placeholder="e.g. MassKara 2026: Arena Street Dance Grand Finals"
+                      onChange={(e) => setSettings({ ...settings, live_broadcast_title: e.target.value })}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group">
+                      <label className="form-label">Host City / LGU Partner</label>
+                      <input
+                        type="text"
+                        className="input-field"
+                        value={settings.live_host_lgu || ''}
+                        placeholder="e.g. City Government of Bacolod"
+                        onChange={(e) => setSettings({ ...settings, live_host_lgu: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Active Viewer Count</label>
+                      <input
+                        type="text"
+                        className="input-field"
+                        value={settings.live_viewer_count || ''}
+                        placeholder="e.g. 3,420"
+                        onChange={(e) => setSettings({ ...settings, live_viewer_count: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Stream Video ID or HLS URL</label>
+                    <input
+                      type="text"
+                      className="input-field"
+                      value={settings.live_stream_video_id || settings.youtube_live_stream_id || ''}
+                      placeholder="YouTube Video ID or custom HLS URL"
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          live_stream_video_id: e.target.value,
+                          youtube_live_stream_id: e.target.value,
+                        })
+                      }
+                    />
+                    <small style={{ color: 'var(--muted-text)', fontSize: '12px' }}>
+                      Controls the sovereign player stream on mobile.
+                    </small>
+                  </div>
+
+                  <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid var(--border-color)' }} />
+
+                  <h4 style={{ fontSize: '14px', color: 'var(--deep-ocean)', marginBottom: '10px' }}>
+                    Pre-Event Countdown & Next Festival
+                  </h4>
+
+                  <div className="form-group">
+                    <label className="form-label">Next Festival Title</label>
+                    <input
+                      type="text"
+                      className="input-field"
+                      value={settings.next_festival_title || ''}
+                      placeholder="e.g. MassKara Festival 2026: Arena Dance Grand Finals"
+                      onChange={(e) => setSettings({ ...settings, next_festival_title: e.target.value })}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group">
+                      <label className="form-label">Festival Date</label>
+                      <input
+                        type="text"
+                        className="input-field"
+                        value={settings.next_festival_date || ''}
+                        placeholder="e.g. October 26, 2026"
+                        onChange={(e) => setSettings({ ...settings, next_festival_date: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Host Location</label>
+                      <input
+                        type="text"
+                        className="input-field"
+                        value={settings.next_festival_location || ''}
+                        placeholder="e.g. Bacolod City, Negros Occidental"
+                        onChange={(e) => setSettings({ ...settings, next_festival_location: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <button type="submit" className="btn btn-primary" style={{ marginTop: '8px', width: '100%' }}>
+                    Save Live TV Broadcast Settings
+                  </button>
+                </form>
+              </div>
+
               {/* SETTINGS CARD */}
               <div className="card" style={{ padding: '24px' }}>
                 <h3 style={{ fontSize: '18px', color: 'var(--deep-ocean)', marginBottom: '16px' }}>

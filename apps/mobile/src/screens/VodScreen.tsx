@@ -79,7 +79,6 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
   onPushToast,
 }) => {
   const t = PROTOTYPE_THEMES[theme];
-  const [target, setTarget] = useState('The ILC app');
   const [comment, setComment] = useState('');
 
   const handleSendFeedback = () => {
@@ -87,17 +86,12 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
       onPushToast('Pick a rating', 'Tap a star before sending.');
       return;
     }
-    onSubmitFeedback(target, rating, comment.trim() || '(no comment)');
+    onSubmitFeedback('Island Living Channel App', rating, comment.trim() || 'Great streaming experience!');
     setComment('');
   };
 
   return (
     <View>
-      <H1 theme={theme}>Profile & Settings</H1>
-      <MuteText theme={theme} style={{ marginTop: 4, marginBottom: 8 }}>
-        Manage digital pass credentials, airport geofence alerts, and viewing preferences.
-      </MuteText>
-
       {/* Account Details Card */}
       <PromoBox theme={theme} style={{ marginTop: 10, marginBottom: 4 }}>
         {isRegistered ? (
@@ -253,15 +247,11 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
         <Feather name="chevron-right" size={18} color={t.mute} />
       </TouchableOpacity>
 
-      {/* Rate Your Experience Section */}
-      <H2 theme={theme}>Rate your experience</H2>
-      <FieldLabel theme={theme}>What are you rating?</FieldLabel>
-      <ProtoSelect
-        theme={theme}
-        options={RATING_OPTIONS}
-        value={target}
-        onChange={setTarget}
-      />
+      {/* Rate Island Living Channel Section */}
+      <H2 theme={theme}>Rate Island Living Channel</H2>
+      <MuteText theme={theme} style={{ marginTop: -4, marginBottom: 10 }}>
+        Help our broadcast engineering and production team improve your viewing experience.
+      </MuteText>
 
       <View style={styles.starsRow}>
         {[1, 2, 3, 4, 5].map((n) => {
@@ -290,7 +280,7 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
         theme={theme}
         value={comment}
         onChangeText={setComment}
-        placeholder="Tell us what worked and what didn’t"
+        placeholder="Tell us what worked and what didn't on the ILC channel & app"
         multiline
         numberOfLines={3}
       />
@@ -300,7 +290,7 @@ export const VodScreen: React.FC<MoreScreenProps> = ({
         variant="primary"
         size="md"
         fullWidth
-        label="Send feedback"
+        label="Send ILC feedback"
         onPress={handleSendFeedback}
       />
 

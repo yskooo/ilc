@@ -1,13 +1,19 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import {
   TABS,
   PrototypeTab,
   ThemeMode,
   PROTOTYPE_THEMES,
 } from '../constants/prototypeTheme';
-import { RADII, TYPO } from '../constants/uiTokens';
+import { FONT_STACK, TYPO } from '../constants/uiTokens';
 
 export type TabType = PrototypeTab;
 
@@ -25,131 +31,209 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const t = PROTOTYPE_THEMES[theme];
   const isDark = theme === 'dark';
 
+  // Apple SF Symbols - aligned icon mapping
   const renderTabIcon = (tab: PrototypeTab, color: string, active: boolean) => {
     switch (tab) {
       case 'home':
-        return <Feather name="play-circle" size={20} color={color} />;
+        return (
+          <Ionicons
+            name={active ? 'tv' : 'tv-outline'}
+            size={20}
+            color={color}
+          />
+        );
       case 'live':
-        return <MaterialCommunityIcons name="broadcast" size={21} color={color} />;
+        return (
+          <View style={styles.liveIconContainer}>
+            <Ionicons
+              name={active ? 'radio' : 'radio-outline'}
+              size={20}
+              color={color}
+            />
+            {/* Live broadcast pulse dot */}
+            <View
+              style={[
+                styles.liveBeaconDot,
+                { borderColor: isDark ? '#0A2417' : '#FFFFFF' },
+              ]}
+            />
+          </View>
+        );
       case 'rewards':
-        return <Feather name="award" size={20} color={color} />;
+        return (
+          <Ionicons
+            name={active ? 'ticket' : 'ticket-outline'}
+            size={20}
+            color={color}
+          />
+        );
       case 'travel':
-        return <Feather name="navigation" size={19} color={color} />;
+        return (
+          <Ionicons
+            name={active ? 'compass' : 'compass-outline'}
+            size={21}
+            color={color}
+          />
+        );
       case 'more':
-        return <Feather name="user" size={20} color={color} />;
+        return (
+          <Ionicons
+            name={active ? 'grid' : 'grid-outline'}
+            size={19}
+            color={color}
+          />
+        );
       default:
-        return <Feather name="grid" size={20} color={color} />;
+        return (
+          <Ionicons
+            name={active ? 'apps' : 'apps-outline'}
+            size={20}
+            color={color}
+          />
+        );
     }
   };
 
-  const activeColor = isDark ? '#C9DC3F' : '#0B6A2E';
-  const inactiveColor = isDark ? 'rgba(255, 255, 255, 0.42)' : '#8E8E93';
+  const activeTint = isDark ? '#C9DC3F' : '#0B6A2E';
+  const inactiveTint = isDark
+    ? 'rgba(255, 255, 255, 0.44)'
+    : 'rgba(20, 31, 24, 0.46)';
 
   return (
-    <View
-      style={[
-        styles.tabsDock,
-        {
-          backgroundColor: isDark ? 'rgba(4, 21, 11, 0.90)' : 'rgba(255, 255, 255, 0.92)',
-          borderTopColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
-        },
-        Platform.OS === 'web' &&
-          ({
-            backdropFilter: 'blur(24px) saturate(1.8)',
-            WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
-            boxShadow: isDark
-              ? '0 -8px 24px rgba(0, 0, 0, 0.5)'
-              : '0 -4px 20px rgba(0, 0, 0, 0.06)',
-          } as any),
-      ]}
-    >
-      <View style={styles.tabsRow}>
-        {TABS.map(([key, label]) => {
-          const isActive = currentTab === key;
-          const color = isActive ? activeColor : inactiveColor;
+    <View style={styles.floatingDockWrapper} pointerEvents="box-none">
+      <View
+        style={[
+          styles.liquidGlassBar,
+          {
+            backgroundColor: isDark
+              ? 'rgba(10, 28, 18, 0.82)'
+              : 'rgba(255, 255, 255, 0.86)',
+            borderColor: isDark
+              ? 'rgba(255, 255, 255, 0.16)'
+              : 'rgba(0, 0, 0, 0.08)',
+          },
+          Platform.OS === 'web' &&
+            ({
+              backdropFilter: 'blur(30px) saturate(210%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(210%)',
+              boxShadow: isDark
+                ? '0 16px 36px -6px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.22), inset 0 -1px 1px rgba(0, 0, 0, 0.4)'
+                : '0 12px 30px -4px rgba(0, 0, 0, 0.12), inset 0 1px 1.5px rgba(255, 255, 255, 0.95), inset 0 -1px 1px rgba(0, 0, 0, 0.04)',
+            } as any),
+        ]}
+      >
+        <View style={styles.tabsRow}>
+          {TABS.map(([key, label]) => {
+            const isActive = currentTab === key;
+            const color = isActive ? activeTint : inactiveTint;
 
-          return (
-            <TouchableOpacity
-              key={key}
-              style={styles.tabButton}
-              onPress={() => onSelectTab(key)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.iconWrap}>
-                {renderTabIcon(key, color, isActive)}
-                {isActive && (
-                  <View
-                    style={[
-                      styles.activeDot,
-                      { backgroundColor: activeColor },
-                    ]}
-                  />
-                )}
-              </View>
-
-              <Text
+            return (
+              <TouchableOpacity
+                key={key}
                 style={[
-                  styles.tabLabel,
-                  {
-                    color,
-                    fontWeight: isActive ? '700' : '500',
-                  },
+                  styles.tabButton,
+                  isActive && [
+                    styles.activeLiquidPill,
+                    {
+                      backgroundColor: isDark
+                        ? 'rgba(201, 220, 63, 0.14)'
+                        : 'rgba(11, 106, 46, 0.09)',
+                      borderColor: isDark
+                        ? 'rgba(201, 220, 63, 0.28)'
+                        : 'rgba(11, 106, 46, 0.18)',
+                    },
+                  ],
                 ]}
+                onPress={() => onSelectTab(key)}
+                activeOpacity={0.7}
               >
-                {label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+                <View style={styles.iconWrap}>
+                  {renderTabIcon(key, color, isActive)}
+                </View>
+
+                <Text
+                  style={[
+                    styles.tabLabel,
+                    {
+                      color,
+                      fontWeight: isActive ? '700' : '500',
+                    },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  tabsDock: {
+  floatingDockWrapper: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 10,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 10,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 26,
+    zIndex: 30,
+  },
+  liquidGlassBar: {
+    width: '100%',
+    maxWidth: 400,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 1,
+    paddingHorizontal: 6,
+    paddingVertical: 5,
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   tabsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    maxWidth: 500,
-    alignSelf: 'center',
+    justifyContent: 'space-between',
     width: '100%',
   },
   tabButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
-    paddingVertical: 4,
+    paddingVertical: 5,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    gap: 2.5,
+  },
+  activeLiquidPill: {
+    // Styling applied when active
   },
   iconWrap: {
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-    height: 24,
+    height: 22,
   },
-  activeDot: {
+  liveIconContainer: {
+    position: 'relative',
+  },
+  liveBeaconDot: {
     position: 'absolute',
-    bottom: -3,
-    width: 3.5,
-    height: 3.5,
-    borderRadius: 2,
+    top: -2,
+    right: -4,
+    width: 6.5,
+    height: 6.5,
+    borderRadius: 3.5,
+    backgroundColor: '#EF4444',
+    borderWidth: 1.5,
   },
   tabLabel: {
-    ...TYPO.micro,
+    fontFamily: FONT_STACK,
     fontSize: 10,
-    letterSpacing: 0.1,
-    textTransform: 'none',
-    marginTop: 2,
+    letterSpacing: -0.1,
   },
 });

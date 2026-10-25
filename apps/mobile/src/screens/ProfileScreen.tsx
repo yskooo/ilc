@@ -212,7 +212,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       <View style={styles.directoryHeader}>
         <View style={styles.directoryTitleRow}>
           <Text style={[TYPO.micro, { color: '#0B6A2E', letterSpacing: 1 }]}>
-            PARTNER DIRECTORY
+            ISLAND LIVING CHANNEL PARTNERS
           </Text>
           <View style={[styles.discountPill, { backgroundColor: '#C9DC3F' }]}>
             <Text style={[TYPO.micro, { color: '#06240F' }]}>5% OFF ALL</Text>

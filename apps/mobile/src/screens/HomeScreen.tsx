@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   Linking,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import {
   H1,
   H2,
@@ -40,9 +40,10 @@ import {
   VideoCategoryFilter,
   WatchHistoryItem,
 } from '../constants/prototypeTheme';
-import { RADII, TYPO } from '../constants/uiTokens';
+import { FONT_STACK, RADII, TYPO } from '../constants/uiTokens';
 import { YouTubeVideoItem } from '@ilc/shared';
 import { youtubeService } from '../services/youtube';
+import { broadcastService, LiveBroadcastConfig, DEFAULT_BROADCAST_CONFIG } from '../services/broadcast';
 
 interface HomeScreenProps {
   theme: ThemeMode;
@@ -113,14 +114,26 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   );
   const [loadingYt, setLoadingYt] = useState<boolean>(false);
 
+  const [broadcastConfig, setBroadcastConfig] = useState<LiveBroadcastConfig>(
+    broadcastService.getConfig()
+  );
+
   useEffect(() => {
     let isMounted = true;
     (async () => {
       try {
-        const data = await youtubeService.fetchWatchData();
-        if (isMounted && data.videos && data.videos.length > 0) {
-          setYtVideos(data.videos);
-          setYtShorts(data.shorts);
+        const [data, bConfig] = await Promise.all([
+          youtubeService.fetchWatchData(),
+          broadcastService.fetchBroadcastConfig(),
+        ]);
+        if (isMounted) {
+          if (data.videos && data.videos.length > 0) {
+            setYtVideos(data.videos);
+            setYtShorts(data.shorts);
+          }
+          if (bConfig) {
+            setBroadcastConfig(bConfig);
+          }
         }
       } catch (err) {
         console.warn('[HomeScreen] Could not load live YouTube content:', err);
@@ -180,6 +193,127 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </View>
       )}
 
+      {/* Live Event Activity Widget (iOS 18 Dynamic Island / Live Activity Capsule) */}
+      {broadcastConfig.showLiveBanner && onSelectTab && selectedCategory === 'All' && !searchQuery.trim() && (
+        <TouchableOpacity
+          style={[
+            styles.liveActivityCapsule,
+            {
+              backgroundColor: isDark
+                ? 'rgba(10, 30, 20, 0.85)'
+                : 'rgba(255, 255, 255, 0.90)',
+              borderColor: isDark
+                ? 'rgba(110, 231, 183, 0.35)'
+                : 'rgba(11, 106, 46, 0.18)',
+            },
+            Platform.OS === 'web' &&
+              ({
+                backdropFilter: 'blur(30px) saturate(220%)',
+                WebkitBackdropFilter: 'blur(30px) saturate(220%)',
+                boxShadow: isDark
+                  ? '0 12px 32px -4px rgba(0, 0, 0, 0.55), 0 0 20px -2px rgba(11, 106, 46, 0.35), inset 0 1px 1.5px rgba(255, 255, 255, 0.22)'
+                  : '0 8px 24px -4px rgba(0, 0, 0, 0.10), inset 0 1px 2px rgba(255, 255, 255, 0.95)',
+              } as any),
+          ]}
+          onPress={() => onSelectTab('live')}
+          activeOpacity={0.82}
+        >
+          {/* Left Signal Beacon / Live Radar */}
+          <View style={styles.liveBeaconWrapper}>
+            <View style={styles.liveRadarOuterRing}>
+              <View
+                style={[
+                  styles.liveRadarPulseDot,
+                  { backgroundColor: broadcastConfig.isLive ? '#EF4444' : '#10B981' },
+                ]}
+              />
+            </View>
+            <View
+              style={[
+                styles.liveBadgeTag,
+                { backgroundColor: broadcastConfig.isLive ? '#EF4444' : '#0B6A2E' },
+              ]}
+            >
+              <Text style={styles.liveBadgeTagText}>
+                {broadcastConfig.isLive ? 'LIVE' : 'UPCOMING'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Center Info Cluster */}
+          <View style={styles.liveCenterCluster}>
+            <View style={styles.liveEyebrowRow}>
+              <Text
+                style={[
+                  styles.liveEyebrowText,
+                  { color: isDark ? '#6EE7B7' : '#0B6A2E' },
+                ]}
+              >
+                {broadcastConfig.isLive
+                  ? `${broadcastConfig.viewerCount || '3.4k'} VIEWERS · ${(broadcastConfig.hostLgu || 'Bacolod City').toUpperCase()}`
+                  : `NEXT FESTIVAL · ${(broadcastConfig.nextFestivalLocation || 'Tacloban City').toUpperCase()}`}
+              </Text>
+            </View>
+
+            <Text
+              style={[styles.liveBroadcastHeadline, { color: t.ink }]}
+              numberOfLines={1}
+            >
+              {broadcastConfig.isLive
+                ? broadcastConfig.broadcastTitle
+                : (broadcastConfig.nextFestivalTitle || 'Pintados Festival 2026: Ritual Dance')}
+            </Text>
+
+            <View style={styles.liveSubtitleRow}>
+              <Ionicons
+                name="shield-checkmark"
+                size={11}
+                color={isDark ? '#6EE7B7' : '#0B6A2E'}
+              />
+              <Text
+                style={[
+                  styles.liveSubtitleNote,
+                  {
+                    color: isDark
+                      ? 'rgba(255, 255, 255, 0.65)'
+                      : 'rgba(20, 31, 24, 0.65)',
+                  },
+                ]}
+                numberOfLines={1}
+              >
+                {broadcastConfig.isLive
+                  ? 'Official Sovereign Stream · Full Unmuted Audio'
+                  : 'Direct LGU Feed · Zero Copyright Muting'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Right Action Pill */}
+          <View
+            style={[
+              styles.liveTuneInButton,
+              {
+                backgroundColor: isDark ? '#C9DC3F' : '#0B6A2E',
+              },
+            ]}
+          >
+            <Ionicons
+              name={broadcastConfig.isLive ? 'play' : 'calendar'}
+              size={12}
+              color={isDark ? '#04150B' : '#FFFFFF'}
+            />
+            <Text
+              style={[
+                styles.liveTuneInText,
+                { color: isDark ? '#04150B' : '#FFFFFF' },
+              ]}
+            >
+              {broadcastConfig.isLive ? 'Watch' : 'Pass'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )}
+
       {/* Cinematic Hero Showcase (Matching Netflix Reference Layout) */}
       {featured && selectedCategory === 'All' && !searchQuery.trim() && (
         <CinematicHero
@@ -225,7 +359,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <View style={styles.sectionBadgeRow}>
                 <View style={[styles.shortsTag, { backgroundColor: '#C9DC3F' }]}>
                   <Text style={[styles.shortsTagIcon, { color: '#06240F' }]}>★</Text>
-                  <Text style={[styles.shortsTagText, { color: '#06240F' }]}>ILC EXCLUSIVES</Text>
+                  <Text style={[styles.shortsTagText, { color: '#06240F' }]}>ISLAND LIVING CHANNEL EXCLUSIVES</Text>
                 </View>
               </View>
               <H2 theme={theme} style={{ marginTop: 2, marginBottom: 0 }}>
@@ -337,12 +471,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       {/* DEDICATED YOUTUBE SHORTS SECTION (Portrait Rectangle Cards) */}
       <View style={styles.sectionHeader}>
         <View>
-          <View style={styles.sectionBadgeRow}>
-            <View style={styles.shortsTag}>
-              <Text style={styles.shortsTagIcon}>⚡</Text>
-              <Text style={styles.shortsTagText}>ILC SHORTS</Text>
-            </View>
-          </View>
           <H2 theme={theme} style={{ marginTop: 2, marginBottom: 0 }}>
             Island Shorts & Reels
           </H2>
@@ -742,5 +870,94 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+  },
+  liveActivityCapsule: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 22,
+    borderWidth: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  liveBeaconWrapper: {
+    alignItems: 'center',
+    marginRight: 10,
+    gap: 4,
+  },
+  liveRadarOuterRing: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  liveRadarPulseDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  liveBadgeTag: {
+    paddingVertical: 1.5,
+    paddingHorizontal: 4.5,
+    borderRadius: 4,
+  },
+  liveBadgeTagText: {
+    fontFamily: FONT_STACK,
+    color: '#FFFFFF',
+    fontSize: 7.5,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  liveCenterCluster: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 2,
+    marginRight: 10,
+  },
+  liveEyebrowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  liveEyebrowText: {
+    fontFamily: FONT_STACK,
+    fontSize: 9.5,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  liveBroadcastHeadline: {
+    fontFamily: FONT_STACK,
+    fontSize: 14,
+    fontWeight: '700',
+    letterSpacing: -0.2,
+  },
+  liveSubtitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3.5,
+  },
+  liveSubtitleNote: {
+    fontFamily: FONT_STACK,
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  liveTuneInButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 7,
+    paddingHorizontal: 11,
+    borderRadius: 16,
+  },
+  liveTuneInText: {
+    fontFamily: FONT_STACK,
+    fontSize: 11.5,
+    fontWeight: '800',
+    letterSpacing: -0.2,
   },
 });

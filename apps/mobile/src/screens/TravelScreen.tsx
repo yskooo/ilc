@@ -55,7 +55,7 @@ export const TravelScreen: React.FC<TravelScreenProps> = ({
       'Otamigo Partner Booking',
       `${slot} (${price}) selected with your 5% ILC member discount.`
     );
-    Linking.openURL(partnerUrl).catch(() => {});
+    Linking.openURL(partnerUrl).catch(() => { });
   };
 
   return (
@@ -64,19 +64,12 @@ export const TravelScreen: React.FC<TravelScreenProps> = ({
       <View style={styles.header}>
         <View style={styles.taglineRow}>
           <Text style={[TYPO.micro, { color: '#0B6A2E', letterSpacing: 1.2 }]}>
-            ISLAND TRANSIT & STAYS
+            ISLAND LIVING CHANNEL TRAVEL
           </Text>
-          <View style={[styles.partnerMiniBadge, { backgroundColor: isDark ? 'rgba(201,220,63,0.18)' : '#EAF2E6' }]}>
-            <Feather name="shield" size={10} color="#0B6A2E" style={{ marginRight: 3 }} />
-            <Text style={[TYPO.micro, { color: '#0B6A2E' }]}>Otamigo Verified</Text>
-          </View>
         </View>
 
         <Text style={[TYPO.h1, { color: t.ink, marginTop: 4 }]}>
           Travel across the islands
-        </Text>
-        <Text style={[TYPO.subhead, { color: isDark ? 'rgba(255,255,255,0.72)' : '#526658', marginTop: 4 }]}>
-          Seamless fastcraft, flights, and boutique island stays with guaranteed 5% member pricing.
         </Text>
       </View>
 
@@ -163,7 +156,7 @@ export const TravelScreen: React.FC<TravelScreenProps> = ({
           {/* Otamigo Live Redirect Banner */}
           <TouchableOpacity
             activeOpacity={0.85}
-            onPress={() => Linking.openURL(partnerUrl).catch(() => {})}
+            onPress={() => Linking.openURL(partnerUrl).catch(() => { })}
             style={[
               styles.partnerBanner,
               {

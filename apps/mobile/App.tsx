@@ -334,7 +334,14 @@ export default function App() {
           )}
 
           {tab === 'live' && (
-            <LiveTvScreen theme={theme} onPushToast={pushToast} />
+            <LiveTvScreen
+              theme={theme}
+              onPushToast={pushToast}
+              onOpenFullscreenQr={(mName) => {
+                setQrMerchantContext(mName);
+                setFullscreenQrOpen(true);
+              }}
+            />
           )}
 
           {tab === 'rewards' && (
@@ -472,6 +479,12 @@ export default function App() {
             initialProgress={activeWatchProgress}
             onUpdateProgress={handleUpdateWatchProgress}
             onClose={() => setActiveVideo(null)}
+            onSelectVideo={(v) => setActiveVideo(v)}
+            onOpenFullscreenQr={(mName) => {
+              setQrMerchantContext(mName);
+              setFullscreenQrOpen(true);
+            }}
+            onPushToast={(title, msg) => pushToast(title, msg, 'announcement')}
           />
         )}
 
@@ -517,6 +530,12 @@ export default function App() {
             theme={theme}
             video={selectedYouTubeVideo}
             onClose={() => setSelectedYouTubeVideo(null)}
+            onSelectVideo={(v) => setSelectedYouTubeVideo(v)}
+            onOpenFullscreenQr={(mName) => {
+              setQrMerchantContext(mName);
+              setFullscreenQrOpen(true);
+            }}
+            onPushToast={(title, msg) => pushToast(title, msg, 'announcement')}
           />
         )}
 
@@ -553,18 +572,19 @@ const styles = StyleSheet.create({
   },
   scrContent: {
     paddingHorizontal: 20,
-    paddingBottom: 110,
+    paddingTop: 16,
+    paddingBottom: 130,
   },
   banner: {
     position: 'absolute',
     left: 14,
     right: 14,
-    top: 14,
+    top: Platform.OS === 'ios' ? 48 : 14,
     borderRadius: 20,
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderWidth: 1,
-    zIndex: 15,
+    zIndex: 100,
   },
   bannerHeader: {
     fontSize: 13,
